@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kowri – Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+:root{
+  --green:#22c55e;
+  --green-dark:#16a34a;
+  --text:#111827;
+  --muted:#6b7280;
+  --border:#d1d5db;
+  --bg:#f3f4f6;
+  --card:#ffffff;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+.logo-area{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+.logo-area img{
+  height: 44px;
+  width: auto;
+  display: block;
+}
+.logo-wordmark{
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  color: var(--text);
+  letter-spacing: -0.03em;
+}
+.auth-box{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 48px 44px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+h2{
+  font-family: 'Sora', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.sub{
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+.field{ margin-bottom: 22px; }
+.field label{
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.field-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.field-row label{ margin-bottom: 0; }
+.forgot-link{
+  font-size: 13px;
+  color: var(--green-dark);
+  text-decoration: none;
+  font-weight: 500;
+}
+.forgot-link:hover{ text-decoration: underline; }
+.field input{
+  width: 100%;
+  padding: 13px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus{
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
+}
+.field input::placeholder{ color: #9ca3af; }
+.field input.input-error{
+  border-color: #f87171;
+  box-shadow: 0 0 0 3px rgba(248,113,113,0.12);
+}
+.field-hint{
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 5px;
+  display: none;
+  font-weight: 500;
+}
+.field-hint.show{ display: block; }
+.pass-wrap{ position: relative; }
+.pass-wrap input{ padding-right: 48px; }
+.pass-toggle{
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 15px;
+  padding: 0;
+  transition: color 0.15s;
+  line-height: 1;
+}
+.pass-toggle:hover{ color: var(--green); }
+.remember-row{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.remember-row input[type=checkbox]{
+  width: 17px;
+  height: 17px;
+  accent-color: var(--green);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.remember-row label{
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* ── BANNERS ── */
+.banner{
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-size: 14px;
+  margin-bottom: 22px;
+  display: none;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.5;
+}
+.banner i{ margin-top:2px; flex-shrink:0; font-size:16px; }
+.banner-body strong{ display:block; font-weight:700; margin-bottom:3px; font-size:14px; }
+.banner-body span{ font-size:13px; }
+
+.error-banner{
+  background:#fef2f2;
+  border:1.5px solid #fca5a5;
+  border-left:4px solid #ef4444;
+  color:#991b1b;
+}
+.success-banner{
+  background:#f0fdf4;
+  border:1.5px solid #86efac;
+  border-left:4px solid var(--green);
+  color:#166534;
+}
+
+.btn-submit{
+  width: 100%;
+  background: #1f2937;
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+.btn-submit:hover{ background: #111827; }
+.btn-submit:disabled{ opacity: 0.6; cursor: not-allowed; }
+.foot{
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.foot a{
+  color: var(--green-dark);
+  text-decoration: none;
+  font-weight: 600;
+}
+.foot a:hover{ text-decoration: underline; }
+.spinner{
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+@media(max-width: 560px){
+  .auth-box{ padding: 32px 20px; }
+  h2{ font-size: 22px; }
+}
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 0s 600000s, color 0s 600000s;
+  -webkit-text-fill-color: var(--text);
+}
+</style>
+</head>
+<body>
+
+<div class="logo-area">
+  <img src="07d3a4e2-8cf5-43b7-8c90-df4419da67de.jfif" alt="Kowri"
+    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+  <div style="display:none; align-items:center; gap:10px;">
+    <svg width="40" height="40" viewBox="0 0 36 36" fill="none">
+      <defs>
+        <radialGradient id="lg" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#4ade80"/>
+          <stop offset="100%" stop-color="#16a34a"/>
+        </radialGradient>
+      </defs>
+      <path d="M18 2C18 2 4 10 4 21C4 28.7 10.3 35 18 35C25.7 35 32 28.7 32 21C32 10 18 2 18 2Z" fill="url(#lg)"/>
+      <path d="M18 8C15 14 12 18 12 22C12 26 14.5 29.5 18 31.5C14 28.5 13 25 14 21C15.5 16 18 8 18 8Z" fill="white" opacity="0.28"/>
+    </svg>
+    <span class="logo-wordmark">kowri</span>
+  </div>
+</div>
+
+<div class="auth-box">
+  <h2>Welcome back</h2>
+  <p class="sub">Sign in to your Kowri account</p>
+
+  <!-- Error banner -->
+  <div class="banner error-banner" id="err-box">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <div class="banner-body">
+      <strong id="err-title">Sign in failed</strong>
+      <span id="err-msg"></span>
+    </div>
+  </div>
+
+  <!-- Success banner -->
+  <div class="banner success-banner" id="suc-box">
+    <i class="fa-solid fa-circle-check"></i>
+    <div class="banner-body">
+      <strong>Signed in!</strong>
+      <span>Redirecting you to your dashboard…</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="email">Email Address</label>
+    <input type="email" id="email" placeholder="e.g. kwame@example.com"
+           autocomplete="email" inputmode="email" spellcheck="false"
+           oninput="clearFieldError('email','hint-email')"/>
+    <div class="field-hint" id="hint-email">Please enter a valid email address.</div>
+  </div>
+
+  <div class="field">
+    <div class="field-row">
+      <label for="password">Password</label>
+      <a href="#" class="forgot-link">Forgot password?</a>
+    </div>
+    <div class="pass-wrap">
+      <input type="password" id="password" placeholder="Enter your password"
+             autocomplete="current-password"
+             oninput="clearFieldError('password','hint-password')"/>
+      <button type="button" class="pass-toggle" onclick="togglePass()" tabindex="-1" aria-label="Show/hide password">
+        <i class="fa-regular fa-eye"></i>
+      </button>
+    </div>
+    <div class="field-hint" id="hint-password">Please enter your password.</div>
+  </div>
+
+  <div class="remember-row">
+    <input type="checkbox" id="remember" autocomplete="off"/>
+    <label for="remember">Remember me</label>
+  </div>
+
+  <button class="btn-submit" id="si-btn" onclick="doSignIn()">LOG IN</button>
+
+  <div class="foot">Don't have an account? <a href="signup.html">Register</a></div>
+</div>
+
+<script>
+const API = 'https://kowriwebbackend-2.onrender.com';
+
+function togglePass(){
+  const input = document.getElementById('password');
+  const icon  = document.querySelector('.pass-toggle i');
+  if(input.type === 'password'){
+    input.type = 'text';
+    icon.classList.replace('fa-eye','fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash','fa-eye');
+  }
+}
+
+function clearFieldError(inputId, hintId){
+  document.getElementById(inputId).classList.remove('input-error');
+  document.getElementById(hintId).classList.remove('show');
+  // Also hide the top banner when user starts correcting
+  hideBanner('err-box');
+}
+
+function hideBanner(id){
+  document.getElementById(id).style.display = 'none';
+}
+
+function showError(title, msg){
+  const box = document.getElementById('err-box');
+  document.getElementById('err-title').textContent = title;
+  document.getElementById('err-msg').textContent   = msg;
+  box.style.display = 'flex';
+  // Scroll banner into view smoothly
+  box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function showSuccess(){
+  hideBanner('err-box');
+  const box = document.getElementById('suc-box');
+  box.style.display = 'flex';
+}
+
+function fieldError(inputId, hintId){
+  document.getElementById(inputId).classList.add('input-error');
+  document.getElementById(hintId).classList.add('show');
+}
+
+function friendlyError(rawMsg){
+  const m = (rawMsg || '').toLowerCase();
+  if(m.includes('invalid') || m.includes('credentials') || m.includes('incorrect') ||
+     m.includes('password') || m.includes('unauthorized') || m.includes('401'))
+    return { title:'Incorrect email or password', msg:'Double-check your details and try again.' };
+  if(m.includes('not found') || m.includes('no account') || m.includes('no user'))
+    return { title:'Account not found', msg:'No account exists with this email. Try registering instead.' };
+  if(m.includes('network') || m.includes('fetch') || m.includes('failed to fetch'))
+    return { title:'Connection issue', msg:'Check your internet and try again.' };
+  if(m.includes('server') || m.includes('500') || m.includes('internal'))
+    return { title:'Server error', msg:'Something went wrong on our side. Please retry in a moment.' };
+  return { title:'Sign in failed', msg: rawMsg || 'Please review your details and try again.' };
+}
+
+async function doSignIn(){
+  const btn = document.getElementById('si-btn');
+  hideBanner('err-box');
+  hideBanner('suc-box');
+
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember').checked;
+
+  // Client-side validation
+  let hasError = false;
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    fieldError('email','hint-email');
+    hasError = true;
+  }
+  if(!password){
+    fieldError('password','hint-password');
+    hasError = true;
+  }
+  if(hasError){
+    showError('Missing details', 'Please fill in your email and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    let data = {};
+    try{ data = await res.json(); } catch(_){}
+
+    if(!res.ok){
+      const { title, msg } = friendlyError(data.message || data.error || `HTTP ${res.status}`);
+      showError(title, msg);
+      // Highlight both fields red on auth failure
+      fieldError('email','hint-email');
+      fieldError('password','hint-password');
+      document.getElementById('hint-email').classList.remove('show');   // hide inline hints
+      document.getElementById('hint-password').classList.remove('show');
+      btn.disabled = false;
+      btn.textContent = 'LOG IN';
+      return;
+    }
+
+    // Persist tokens
+    localStorage.setItem('kowri_token',   data.token);
+    localStorage.setItem('kowri_refresh', data.refreshToken);
+    localStorage.setItem('kowri_user',    JSON.stringify(data));
+    if(remember){
+      sessionStorage.setItem('kowri_token',   data.token);
+      sessionStorage.setItem('kowri_refresh', data.refreshToken);
+      sessionStorage.setItem('kowri_user',    JSON.stringify(data));
+    }
+
+    showSuccess();
+    setTimeout(() => { window.location.replace('dashboard.html'); }, 1200);
+
+  } catch(e){
+    const { title, msg } = friendlyError(e.message);
+    showError(title, msg);
+    btn.disabled = false;
+    btn.textContent = 'LOG IN';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && document.activeElement.tagName === 'INPUT') doSignIn();
+});
+
+window.addEventListener('load', () => {
+  document.getElementById('email').focus();
+});
+</script>
+</body>
+</html>
