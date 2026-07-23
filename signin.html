@@ -312,8 +312,9 @@ input:-webkit-autofill:focus {
 </div>
 
 <script type="module">
-import { auth } from './firebase-config.js';
+import { auth, db } from './firebase-config.js';
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 window.clearFieldError = function(inputId, hintId){
   document.getElementById(inputId).classList.remove('input-error');

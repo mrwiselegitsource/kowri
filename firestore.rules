@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Function to check if the current user is an Admin or Super Admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['ADMIN', 'SUPER_ADMIN'];
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Anyone can create their initial user document when signing up
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Users can read their own document; Admins can read all users
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      
+      // Only Admins can update users (e.g. balances, roles)
+      // Users shouldn't be able to edit their own balances directly!
+      allow update: if request.auth != null && isAdmin();
+      
+      // Only Admins can delete users
+      allow delete: if request.auth != null && isAdmin();
+    }
+
+    // Deposits Collection
+    match /deposits/{depositId} {
+      // Users can read their own deposits; Admins can read all
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Users can create a deposit request for themselves
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      
+      // Only Admins can update or delete a deposit (e.g., approving/rejecting it)
+      allow update, delete: if request.auth != null && isAdmin();
+    }
+
+    // Withdrawals Collection
+    match /withdrawals/{withdrawalId} {
+      // Users can read their own withdrawals; Admins can read all
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Users can create a withdrawal request for themselves
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      
+      // Only Admins can update or delete a withdrawal (e.g., approving/rejecting it)
+      allow update, delete: if request.auth != null && isAdmin();
+    }
+    
+    // Fallback block to deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
