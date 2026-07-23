@@ -306,15 +306,22 @@ input:-webkit-autofill:focus {
     <label for="remember">Remember me</label>
   </div>
 
-  <button class="btn-submit" id="si-btn" onclick="doSignIn()">LOG IN</button>
+  <button class="btn-submit" id="si-btn">LOG IN</button>
 
   <div class="foot">Don't have an account? <a href="signup.html">Register</a></div>
 </div>
 
-<script>
-const API = 'https://kowriwebbackend-2.onrender.com';
+<script type="module">
+import { auth } from './firebase-config.js';
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
-function togglePass(){
+window.clearFieldError = function(inputId, hintId){
+  document.getElementById(inputId).classList.remove('input-error');
+  document.getElementById(hintId).classList.remove('show');
+  hideBanner('err-box');
+}
+
+window.togglePass = function(){
   const input = document.getElementById('password');
   const icon  = document.querySelector('.pass-toggle i');
   if(input.type === 'password'){
@@ -399,48 +406,38 @@ async function doSignIn(){
   btn.innerHTML = '<span class="spinner"></span> Signing in…';
 
   try {
-    const res = await fetch(`${API}/api/auth/login`, {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-    let data = {};
-    try{ data = await res.json(); } catch(_){}
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const uData = userDoc.exists() ? userDoc.data() : {};
 
-    if(!res.ok){
-      const { title, msg } = friendlyError(data.message || data.error || `HTTP ${res.status}`);
-      showError(title, msg);
-      // Highlight both fields red on auth failure
-      fieldError('email','hint-email');
-      fieldError('password','hint-password');
-      document.getElementById('hint-email').classList.remove('show');   // hide inline hints
-      document.getElementById('hint-password').classList.remove('show');
-      btn.disabled = false;
-      btn.textContent = 'LOG IN';
-      return;
-    }
-
-    // Persist tokens
-    localStorage.setItem('kowri_token',   data.token);
-    localStorage.setItem('kowri_refresh', data.refreshToken);
-    localStorage.setItem('kowri_user',    JSON.stringify(data));
-    if(remember){
-      sessionStorage.setItem('kowri_token',   data.token);
-      sessionStorage.setItem('kowri_refresh', data.refreshToken);
-      sessionStorage.setItem('kowri_user',    JSON.stringify(data));
-    }
+    localStorage.setItem('kowri_token', await user.getIdToken());
+    localStorage.setItem('kowri_user', JSON.stringify({ 
+      id: user.uid, 
+      userId: user.uid,
+      email: user.email,
+      fullName: uData.fullName || 'User',
+      role: uData.role || 'USER'
+    }));
 
     showSuccess();
     setTimeout(() => { window.location.replace('dashboard.html'); }, 1200);
 
   } catch(e){
-    const { title, msg } = friendlyError(e.message);
+    const { title, msg } = friendlyError(e.message || e.code);
     showError(title, msg);
+    // Highlight both fields red on auth failure
+    fieldError('email','hint-email');
+    fieldError('password','hint-password');
+    document.getElementById('hint-email').classList.remove('show');
+    document.getElementById('hint-password').classList.remove('show');
     btn.disabled = false;
     btn.textContent = 'LOG IN';
   }
 }
+
+document.getElementById('si-btn').addEventListener('click', doSignIn);
 
 document.addEventListener('keydown', e => {
   if(e.key === 'Enter' && document.activeElement.tagName === 'INPUT') doSignIn();

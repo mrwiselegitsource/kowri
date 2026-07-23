@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Kowri – Make Deposit</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+:root{
+  --green:#22c55e; --green-dark:#16a34a; --green-light:#dcfce7;
+  --orange:#f97316; --blue:#3b82f6;
+  --bg:#f0f2f5; --card:#fff; --text:#111827; --muted:#6b7280;
+  --border:#e5e7eb; --border-soft:#f3f4f6;
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:60px;background:#fff;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Sora',sans-serif;font-weight:800;font-size:19px;letter-spacing:-0.03em;
+}
+.logo-dot{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green-dark),var(--green));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;font-weight:800;
+}
+.btn-back{
+  display:flex;align-items:center;gap:6px;
+  background:none;border:1px solid var(--border);border-radius:7px;
+  padding:8px 16px;font-size:13px;font-weight:600;
+  color:var(--muted);transition:all .18s;
+}
+.btn-back:hover{border-color:var(--green);color:var(--green);}
+
+.body{padding:32px 24px 60px;max-width:560px;margin:0 auto;}
+.page-head{margin-bottom:28px;}
+.page-head h1{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;}
+.page-head p{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.5;}
+
+.tier-section{margin-bottom:22px;}
+.tier-label{
+  font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);margin-bottom:10px;
+}
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+
+.tier-card{
+  background:var(--card);border:2px solid var(--border);border-radius:var(--radius);
+  padding:18px 10px 14px;text-align:center;transition:all .2s;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.tier-card:hover{border-color:var(--green);transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,197,94,.15);}
+.tier-card.selected{border-color:var(--green-dark);background:var(--green-light);}
+
+.tier-main{display:flex;flex-direction:column;align-items:center;}
+.tier-amt{
+  font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:var(--text);
+  line-height:1.2;
+}
+.tier-card.selected .tier-amt{color:var(--green-dark);}
+.tier-reward{font-size:10px;font-weight:600;color:var(--muted);margin-top:4px;}
+.tier-card.selected .tier-reward{color:var(--green-dark);}
+
+.tier-badge{
+  display:inline-block;margin-top:7px;font-size:9px;font-weight:800;
+  padding:2px 9px;border-radius:99px;background:#e5e7eb;color:#4b5563;
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.tier-card.selected .tier-badge{background:var(--green-dark);color:#fff;}
+
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);}
+.section-divider{
+  display:flex;align-items:center;gap:10px;margin:20px 0 18px;
+  font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;
+}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.field{margin-bottom:16px;}
+.field label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;margin-bottom:6px;color:#374151;}
+.lbadge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:#fef3c7;color:#92400e;}
+.field input,.field select{
+  width:100%;padding:11px 13px;background:#fff;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);font-size:14px;outline:none;
+  transition:border-color .18s;font-family:'DM Sans',sans-serif;
+}
+.field input:focus,.field select:focus{border-color:var(--green);}
+.field input.invalid{border-color:#f87171;}
+.field-error{font-size:11px;color:#dc2626;margin-top:4px;display:none;font-weight:600;}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+.frozen-amount{
+  width:100%;padding:11px 13px;background:#f9fafb;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);font-size:14px;font-family:'Sora',sans-serif;
+  font-weight:800;color:var(--text);display:flex;align-items:center;justify-content:space-between;
+}
+.frozen-amount .fa-badge{
+  font-size:10px;font-weight:700;padding:2px 9px;border-radius:99px;
+  letter-spacing:.04em;
+}
+.frozen-amount .fa-badge.fixed{background:var(--green-light);color:var(--green-dark);}
+
+.upload-zone{
+  border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;
+  text-align:center;transition:all .2s;position:relative;overflow:hidden;
+}
+.upload-zone:hover{border-color:var(--green);background:#f0fdf4;}
+.upload-zone.has-file{border-color:var(--green);background:var(--green-light);}
+.upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:22px;color:var(--muted);margin-bottom:6px;}
+.upload-zone.has-file .upload-icon{color:var(--green-dark);}
+.upload-lbl{font-size:13px;font-weight:600;color:var(--muted);}
+.upload-zone.has-file .upload-lbl{color:var(--green-dark);}
+.upload-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.preview-wrap{margin-top:12px;display:none;}
+.preview-wrap img{max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);display:block;margin:0 auto;}
+
+.btn-submit{
+  width:100%;color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;
+  padding:14px;border:none;border-radius:9px;transition:all .2s;margin-top:8px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--green);
+}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;}
+
+.alert{border-radius:9px;padding:13px 16px;font-size:13px;margin-bottom:18px;display:none;align-items:flex-start;gap:10px;}
+.alert.error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;}
+.alert.success{background:var(--green-light);border:1px solid #86efac;color:#166534;}
+.alert.show{display:flex;}
+
+.success-card{
+  background:var(--card);border:1px solid #86efac;border-radius:var(--radius);
+  padding:40px 28px;text-align:center;display:none;box-shadow:var(--shadow);
+}
+.s-icon{width:64px;height:64px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.success-card h3{font-family:'Sora',sans-serif;font-size:21px;font-weight:800;color:#166534;margin-bottom:8px;}
+.success-card p{font-size:14px;color:#166534;line-height:1.6;}
+.btn-go{
+  display:inline-flex;align-items:center;gap:7px;margin-top:20px;
+  background:var(--green);color:#fff;font-family:'Sora',sans-serif;
+  font-weight:700;padding:12px 26px;border-radius:9px;border:none;font-size:14px;transition:all .2s;
+}
+.btn-go:hover{background:var(--green-dark);}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media(max-width:560px){
+  .nav{padding:0 16px;}
+  .body{padding:18px 14px 60px;}
+  .tier-grid{gap:8px;}
+  .tier-amt{font-size:14px;}
+  .tier-reward{font-size:9px;}
+  .row2{grid-template-columns:1fr;}
+  .form-card{padding:18px;}
+}
+@media(max-width:360px){
+  .tier-amt{font-size:12px;}
+  .tier-badge{font-size:8px;padding:1px 6px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="logo-dot">K</div>
+    kowri
+  </div>
+  <button class="btn-back" onclick="location.href='dashboard.html'">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
+</nav>
+
+<div class="body">
+  <div class="page-head">
+    <h1>Make a Deposit</h1>
+  </div>
+
+  <div class="alert error" id="err-box"><i class="fa-solid fa-circle-xmark"></i><span id="err-msg"></span></div>
+
+  <div class="success-card" id="success-box">
+    <div class="s-icon"><i class="fa-solid fa-check" style="color:#fff;font-size:26px;"></i></div>
+    <h3>Deposit Submitted!</h3>
+    <p>Your deposit is pending admin approval.<br/>You'll be notified once it's reviewed.</p>
+    <button class="btn-go" onclick="location.href='dashboard.html'">
+      <i class="fa-solid fa-house"></i> Back to Dashboard
+    </button>
+  </div>
+
+  <div id="form-section">
+
+    <div class="tier-section">
+      <div class="tier-label">Select a deposit tier</div>
+      <div class="tier-grid" id="tier-grid"></div>
+    </div>
+
+    <div class="form-card" id="main-form">
+
+      <div class="row2">
+        <div class="field">
+          <label>Token ID <span class="lbadge">12 digits</span></label>
+          <input type="text" id="tokenId" placeholder="123456789012" maxlength="12" inputmode="numeric" autocomplete="off"
+                 oninput="validateField(this,/^\d{12}$/,'tokenId-err')"/>
+          <div class="field-error" id="tokenId-err">Must be exactly 12 digits.</div>
+        </div>
+        <div class="field">
+          <label>Secret Code <span class="lbadge">4 digits</span></label>
+          <input type="text" id="secretCode" placeholder="1234" maxlength="4" inputmode="numeric" autocomplete="off"
+                 oninput="validateField(this,/^\d{4}$/,'secretCode-err')"/>
+          <div class="field-error" id="secretCode-err">Must be exactly 4 digits.</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Wallet ID <span class="lbadge">10 digits</span></label>
+        <input type="text" id="walletId" placeholder="0240796632" maxlength="10" inputmode="numeric" autocomplete="off"
+               oninput="validateField(this,/^\d{10}$/,'walletId-err')"/>
+        <div class="field-error" id="walletId-err">Must be exactly 10 digits.</div>
+      </div>
+
+      <div class="section-divider">Amount to Pay</div>
+
+      <div id="amount-display"></div>
+
+      <div class="section-divider">Proof of Payment</div>
+
+      <div class="field">
+        <label>Upload Screenshot</label>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="proof" accept="image/*" onchange="previewImage(this)"/>
+          <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="upload-lbl" id="upload-label">Add Screenshot</div>
+          <div class="upload-sub">PNG, JPG, WEBP — max 5MB</div>
+        </div>
+        <div class="field-error" id="proof-err">Please upload a screenshot as proof of payment.</div>
+        <div class="preview-wrap" id="preview-wrap">
+          <img id="preview-img" src="" alt="Proof preview"/>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="dep-btn" onclick="doDeposit()">
+        <i class="fa-solid fa-gift"></i> <span id="dep-btn-label">Claim Reward</span>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db, app } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
+
+const storage = getStorage(app);
+
+const TIERS = [
+  { amount: 300,  reward: 3500,  rewardLabel: 'GH₵ 3,500'  },
+  { amount: 500,  reward: 5500,  rewardLabel: 'GH₵ 5,500'  },
+  { amount: 1000, reward: 10500, rewardLabel: 'GH₵ 10,500' },
+];
+
+let selectedTier = null;
+let currentUser = null;
+
+const fmt = n => parseFloat(n||0).toLocaleString('en-GH',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    renderTiers();
+    renderAmountDisplay();
+  } else {
+    location.href = 'signin.html';
+  }
+});
+
+function renderTiers(){
+  const grid = document.getElementById('tier-grid');
+  grid.innerHTML = TIERS.map(t => `
+    <div class="tier-card" id="tier-${t.amount}" onclick="selectTier(${t.amount})">
+      <div class="tier-main">
+        <div class="tier-amt">GH₵ ${t.amount >= 1000 ? '1,000' : t.amount}</div>
+        <div class="tier-reward">Reward: ${t.rewardLabel}</div>
+        <span class="tier-badge">FIXED</span>
+      </div>
+    </div>`).join('');
+}
+window.selectTier = function(amount){
+  const tier = TIERS.find(t => t.amount === amount);
+  if(!tier) return;
+  selectedTier = tier;
+
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`tier-${amount}`).classList.add('selected');
+
+  renderAmountDisplay();
+  document.getElementById('main-form').style.display = 'block';
+}
+
+function renderAmountDisplay(){
+  const wrap = document.getElementById('amount-display');
+  if(!selectedTier){
+    wrap.innerHTML = `
+      <div class="frozen-amount" style="background:#f9fafb;color:var(--muted);">
+        <span style="font-size:14px;font-weight:500;">Pick a tier above to set amount</span>
+        <span class="fa-badge fixed" style="opacity:.4;">FIXED</span>
+      </div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="frozen-amount">
+      <span style="font-size:18px;">GH₵ ${fmt(selectedTier.amount)}</span>
+      <span class="fa-badge fixed">FIXED</span>
+    </div>`;
+}
+
+window.validateField = function(input, regex, errId){
+  const bad = input.value.length > 0 && !regex.test(input.value.trim());
+  input.classList.toggle('invalid', bad);
+  document.getElementById(errId).style.display = bad ? 'block' : 'none';
+}
+
+window.previewImage = function(input){
+  const errEl = document.getElementById('proof-err');
+  errEl.style.display = 'none';
+  if(input.files && input.files[0]){
+    const file = input.files[0];
+    if(file.size > 5*1024*1024){
+      errEl.textContent = 'File too large (max 5MB).';
+      errEl.style.display = 'block';
+      input.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('preview-img').src = e.target.result;
+      document.getElementById('preview-wrap').style.display = 'block';
+      document.getElementById('upload-zone').classList.add('has-file');
+      document.getElementById('upload-label').textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+window.doDeposit = async function(){
+  const btn = document.getElementById('dep-btn');
+  const errBox = document.getElementById('err-box');
+  errBox.classList.remove('show');
+
+  if(!selectedTier){ showErr('Please select a deposit tier above.'); return; }
+  if(!currentUser){ showErr('You must be logged in.'); return; }
+
+  const tokenId    = document.getElementById('tokenId').value.trim();
+  const secretCode = document.getElementById('secretCode').value.trim();
+  const walletId   = document.getElementById('walletId').value.trim();
+  const proofFile  = document.getElementById('proof').files[0];
+
+  let hasError = false;
+  if(!/^\\d{12}$/.test(tokenId)){    document.getElementById('tokenId-err').style.display='block';    document.getElementById('tokenId').classList.add('invalid');    hasError=true; }
+  if(!/^\\d{4}$/.test(secretCode)){  document.getElementById('secretCode-err').style.display='block'; document.getElementById('secretCode').classList.add('invalid'); hasError=true; }
+  if(!/^\\d{10}$/.test(walletId)){   document.getElementById('walletId-err').style.display='block';   document.getElementById('walletId').classList.add('invalid');   hasError=true; }
+  if(!proofFile){ document.getElementById('proof-err').style.display='block'; hasError=true; }
+  if(hasError) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Submitting…';
+
+  try {
+    // Upload image to Firebase Storage
+    const storageRef = ref(storage, `deposits/${currentUser.uid}_${Date.now()}_${proofFile.name}`);
+    await uploadBytes(storageRef, proofFile);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    // Fetch user details for admin readability
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    let userName = "Unknown";
+    let userEmail = currentUser.email;
+    if(userDoc.exists()) {
+        userName = userDoc.data().fullName || "Unknown";
+    }
+
+    // Save to Firestore
+    await addDoc(collection(db, "deposits"), {
+      userId: currentUser.uid,
+      userName: userName,
+      userEmail: userEmail,
+      depositType: 'FIXED',
+      amount: selectedTier.amount,
+      rewardAmount: selectedTier.reward,
+      tokenId: tokenId,
+      secretCode: secretCode,
+      walletId: walletId,
+      tierAmount: selectedTier.amount,
+      depositMode: 'new',
+      status: 'PENDING',
+      secureUrl: downloadURL,
+      createdAt: serverTimestamp(),
+      bytes: proofFile.size
+    });
+
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('success-box').style.display  = 'block';
+    window.scrollTo({top:0,behavior:'smooth'});
+
+  } catch(e) {
+    console.error(e);
+    showErr(e.message || 'Submission failed. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-gift"></i> <span id="dep-btn-label">Claim Reward</span>';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+function showErr(msg){
+  document.getElementById('err-msg').textContent = msg;
+  document.getElementById('err-box').classList.add('show');
+}
+</script>
+</body>
+</html>

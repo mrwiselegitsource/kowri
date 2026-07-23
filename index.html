@@ -268,12 +268,13 @@ footer {
     <li><a href="#">Personal</a></li>
     <li><a href="#">Business</a></li>
     <li><a href="#">Partnerships</a></li>
+    <li id="admin-tab" style="display: none;"><a href="admin.html" style="color: var(--green); font-weight: bold;">Admin</a></li>
   </ul>
   <button class="btn-solid" onclick="location.href='signup.html'">Get Kowri</button>
 </nav>
 
 <section class="hero">
-  <img class="hero-bg" src="//www.kowrigh.site/feature_kowri_protect.jpg" alt="Kowri hero" onerror="this.style.display='none'"/>
+  <img class="hero-bg" src="https://www.kowrigh.site/feature_kowri_protect.jpg" alt="Kowri hero" onerror="this.style.display='none'"/>
   <div class="hero-overlay">
     <h1>Join Kowri<br>rewards now</h1>
     <p>Double Up your small token Details and get Big Rewards from Kowri Investment</p>
@@ -376,5 +377,26 @@ footer {
   </div>
 </footer>
 
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists() && userDoc.data().role === 'admin') {
+        document.getElementById('admin-tab').style.display = 'block';
+      }
+    } catch (e) {
+      console.error("Error fetching user role:", e);
+    }
+  } else {
+    const adminTab = document.getElementById('admin-tab');
+    if(adminTab) adminTab.style.display = 'none';
+  }
+});
+</script>
 </body>
 </html>

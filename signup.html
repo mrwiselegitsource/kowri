@@ -294,15 +294,17 @@ input:-webkit-autofill:focus {
     <div class="field-hint" id="hint-confirm">Passwords do not match</div>
   </div>
 
-  <button class="btn-submit" id="reg-btn" onclick="doRegister()">REGISTER</button>
+  <button class="btn-submit" id="reg-btn">REGISTER</button>
 
   <div class="foot">Already have an account? <a href="signin.html">Sign In</a></div>
 </div>
 
-<script>
-const API = 'https://kowriwebbackend-2.onrender.com';
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-function togglePass(inputId, btn) {
+window.togglePass = function(inputId, btn) {
   const input = document.getElementById(inputId);
   const icon  = btn.querySelector('i');
   if (input.type === 'password') {
@@ -340,14 +342,10 @@ function showBanner(title, msg) {
 
 function friendlyError(rawMsg) {
   const m = (rawMsg || '').toLowerCase();
-  if (m.includes('email') && (m.includes('exist') || m.includes('taken') || m.includes('already') || m.includes('conflict')))
+  if (m.includes('email-already-in-use'))
     return { title: 'Email already in use', msg: 'An account with this email already exists. Try signing in instead.' };
-  if (m.includes('phone') && (m.includes('exist') || m.includes('taken') || m.includes('already') || m.includes('conflict')))
-    return { title: 'Phone number already in use', msg: 'This phone number is registered to another account.' };
-  if (m.includes('network') || m.includes('fetch') || m.includes('failed to fetch'))
-    return { title: 'Connection issue', msg: 'Check your internet connection and try again.' };
-  if (m.includes('server') || m.includes('500') || m.includes('internal'))
-    return { title: 'Server error', msg: 'Something went wrong on our side. Please retry in a moment.' };
+  if (m.includes('weak-password'))
+    return { title: 'Weak Password', msg: 'Password should be at least 6 characters.' };
   return { title: 'Could not sign up', msg: rawMsg || 'Please review your details and try again.' };
 }
 
@@ -384,46 +382,42 @@ async function doRegister() {
     return;
   }
 
-  const payload = { fullName, email, password };
-  const phoneNumber = buildPhoneNumber(phoneRaw);
-  if (phoneNumber) payload.phoneNumber = phoneNumber;
-
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Creating account…';
 
   try {
-    // ✅ Updated endpoint
-    const res = await fetch(`${API}/api/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Save to Firestore
+    const payload = { fullName, email, createdAt: new Date().toISOString() };
+    const phoneNumber = buildPhoneNumber(phoneRaw);
+    if (phoneNumber) payload.phoneNumber = phoneNumber;
 
-    let data = {};
-    try { data = await res.json(); } catch(_) {}
+    await setDoc(doc(db, "users", user.uid), payload);
 
-    if (!res.ok) {
-      const { title, msg } = friendlyError(data.message || data.error || `HTTP ${res.status}`);
-      showBanner(title, msg);
-      btn.disabled = false;
-      btn.textContent = 'REGISTER';
-      return;
-    }
-
-    if (data.token)        localStorage.setItem('kowri_token',   data.token);
-    if (data.refreshToken) localStorage.setItem('kowri_refresh', data.refreshToken);
-    localStorage.setItem('kowri_user', JSON.stringify(data));
+    localStorage.setItem('kowri_token', await user.getIdToken());
+    localStorage.setItem('kowri_user', JSON.stringify({ 
+      id: user.uid, 
+      userId: user.uid,
+      email: user.email,
+      fullName: fullName,
+      role: 'USER'
+    }));
+    localStorage.setItem('kowri_new_user', '1');
 
     document.getElementById('suc-box').style.display = 'flex';
     setTimeout(() => location.href = 'dashboard.html', 1600);
 
   } catch(e) {
-    const { title, msg } = friendlyError(e.message);
+    const { title, msg } = friendlyError(e.message || e.code);
     showBanner(title, msg);
     btn.disabled = false;
     btn.textContent = 'REGISTER';
   }
 }
+
+document.getElementById('reg-btn').addEventListener('click', doRegister);
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT') doRegister();

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kowri – Withdraw</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+:root{
+  --green:#22c55e; --green-dark:#16a34a; --green-light:#dcfce7;
+  --blue:#3b82f6; --blue-light:#eff6ff;
+  --orange:#f97316; --orange-light:#fff7ed;
+  --bg:#f0f2f5; --card:#fff; --text:#111827; --muted:#6b7280;
+  --border:#e5e7eb; --radius:12px;
+  --shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* NAV */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:60px;background:#fff;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Sora',sans-serif;font-weight:800;font-size:19px;letter-spacing:-0.03em;
+}
+.logo-dot{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green-dark),var(--green));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;font-weight:800;
+}
+.btn-back{
+  display:flex;align-items:center;gap:6px;
+  background:none;border:1px solid var(--border);border-radius:7px;
+  padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;
+  color:var(--muted);transition:all .18s;font-family:'DM Sans',sans-serif;
+}
+.btn-back:hover{border-color:var(--green);color:var(--green);}
+
+/* BODY */
+.body{padding:36px 24px;max-width:580px;margin:0 auto;}
+.page-head{margin-bottom:24px;}
+.page-head h1{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;}
+.page-head p{font-size:14px;color:var(--muted);margin-top:4px;}
+
+/* Balance banner */
+.balance-banner{
+  background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--radius);
+  padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;
+}
+.balance-banner.low{background:#fff7ed;border-color:#fed7aa;}
+.balance-banner.zero{background:#fee2e2;border-color:#fca5a5;}
+.bb-icon{font-size:18px;flex-shrink:0;}
+.bb-body{flex:1;}
+.bb-label{font-size:12px;font-weight:600;color:#1e40af;}
+.balance-banner.low .bb-label{color:#9a3412;}
+.balance-banner.zero .bb-label{color:#991b1b;}
+.bb-amount{
+  font-family:'Sora',sans-serif;font-size:22px;font-weight:800;
+  color:#1d4ed8;margin-top:2px;
+}
+.balance-banner.low .bb-amount{color:#ea580c;}
+.balance-banner.zero .bb-amount{color:#dc2626;}
+
+/* Notice card */
+.notice-card{
+  background:var(--green-light);border:1.5px solid #86efac;border-radius:var(--radius);
+  padding:20px;margin-bottom:22px;display:flex;gap:14px;
+}
+.notice-icon{
+  width:42px;height:42px;border-radius:9px;
+  background:var(--green-dark);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:17px;color:#fff;
+}
+.notice-body h4{
+  font-family:'Sora',sans-serif;font-size:14px;font-weight:800;
+  color:#14532d;margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.notice-body h4 i{font-size:13px;}
+.notice-body p{font-size:13px;color:#166534;line-height:1.7;}
+
+/* Main card */
+.form-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;box-shadow:var(--shadow);
+}
+.form-card-title{
+  display:flex;align-items:center;gap:10px;margin-bottom:22px;
+  font-family:'Sora',sans-serif;font-size:16px;font-weight:700;
+}
+.form-card-title i{color:var(--green);}
+
+.field{margin-bottom:18px;}
+.field label{font-size:13px;font-weight:600;display:block;margin-bottom:6px;color:#374151;}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;background:#fff;border:1.5px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:14px;outline:none;
+  transition:border-color .18s;font-family:'DM Sans',sans-serif;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green);}
+.field textarea{resize:vertical;min-height:80px;}
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+.field-error{font-size:11px;color:#dc2626;margin-top:4px;display:none;font-weight:600;}
+
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* Select wrapper */
+.select-wrap{position:relative;}
+.select-wrap select{padding-right:36px;appearance:none;}
+.select-wrap::after{
+  content:'\f107';font-family:'Font Awesome 6 Free';font-weight:900;
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;font-size:13px;
+}
+
+/* Min amount note */
+.min-note{
+  background:#f9fafb;border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start;
+}
+.min-note i{color:var(--blue);flex-shrink:0;margin-top:2px;}
+.min-note span{font-size:13px;color:var(--muted);line-height:1.5;}
+.min-note strong{color:var(--text);}
+
+/* Submit btn */
+.btn-submit{
+  width:100%;background:var(--green);color:#fff;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:15px;
+  padding:14px;border:none;border-radius:9px;cursor:pointer;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-submit:hover:not(:disabled){background:var(--green-dark);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+/* Alert */
+.alert{
+  border-radius:9px;padding:13px 16px;font-size:13px;margin-bottom:18px;
+  align-items:flex-start;gap:10px;display:none;
+}
+.alert.error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;}
+.alert.show{display:flex;}
+.alert i{flex-shrink:0;margin-top:1px;}
+
+/* Processing Modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  display:flex;align-items:center;justify-content:center;
+  z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;
+  padding:20px;
+}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal-box{
+  background:#fff;border-radius:20px;padding:36px 28px;
+  max-width:400px;width:100%;text-align:center;
+  transform:scale(.93) translateY(14px);transition:transform .3s;
+  box-shadow:0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-overlay.show .modal-box{transform:scale(1) translateY(0);}
+
+.modal-icon-wrap{
+  width:72px;height:72px;border-radius:50%;
+  background:var(--green-light);border:3px solid #86efac;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 18px;
+}
+.modal-icon-wrap i{font-size:28px;color:var(--green-dark);}
+.modal-box h2{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#166534;margin-bottom:8px;}
+.modal-box .sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+
+/* Ring countdown */
+.ring-wrap{position:relative;width:110px;height:110px;margin:0 auto 16px;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-track{fill:none;stroke:#e5e7eb;stroke-width:7;}
+.ring-prog{fill:none;stroke:var(--green-dark);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .95s linear;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-center .mins{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;color:var(--green-dark);line-height:1;}
+.ring-center .unit{font-size:11px;color:var(--muted);margin-top:2px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+
+.prog-bar-wrap{background:#e5e7eb;border-radius:99px;height:5px;overflow:hidden;margin-bottom:5px;}
+.prog-bar-fill{height:100%;background:var(--green);border-radius:99px;transition:width .95s linear;}
+.prog-label{font-size:12px;color:var(--muted);margin-bottom:20px;}
+
+/* Status steps */
+.status-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;text-align:left;}
+.step-row{display:flex;align-items:center;gap:10px;font-size:13px;color:#374151;}
+.step-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-dot.done{background:var(--green);}
+.step-dot.done i{color:#fff;font-size:9px;}
+.step-dot.active{background:var(--green-light);border:2px solid var(--green);}
+.step-dot.active .pulse{width:9px;height:9px;border-radius:50%;background:var(--green);animation:pulse 1.2s ease-in-out infinite;}
+.step-dot.pending{background:#f3f4f6;border:2px solid #e5e7eb;}
+.step-dot.pending span{width:8px;height:8px;border-radius:50%;background:#d1d5db;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.65);}}
+
+.btn-modal-close{
+  width:100%;background:var(--green);color:#fff;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:14px;
+  padding:13px;border:none;border-radius:9px;cursor:pointer;
+  transition:background .2s;display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn-modal-close:hover{background:var(--green-dark);}
+
+.spinner{
+  display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;
+  border-radius:50%;animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media(max-width:560px){
+  .nav{padding:0 16px;}
+  .body{padding:20px 14px;}
+  .row2{grid-template-columns:1fr;}
+  .form-card{padding:20px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="logo-dot">K</div>
+    kowri
+  </div>
+  <button class="btn-back" onclick="location.href='dashboard.html'">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
+</nav>
+
+<div class="body">
+  <div class="page-head">
+    <h1>Withdraw Funds</h1>
+    <p>Submit a withdrawal request to your mobile money or bank account</p>
+  </div>
+
+  <!-- Balance banner -->
+  <div class="balance-banner" id="bal-banner">
+    <div class="bb-icon"><i class="fa-solid fa-wallet" style="color:#1d4ed8;"></i></div>
+    <div class="bb-body">
+      <div class="bb-label">Available Balance</div>
+      <div class="bb-amount" id="bal-display">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div class="alert error" id="err-box">
+    <i class="fa-solid fa-circle-xmark"></i>
+    <span id="err-msg"></span>
+  </div>
+
+  <!-- Notice card -->
+  <div class="notice-card">
+    <div class="notice-icon"><i class="fa-solid fa-coins"></i></div>
+    <div class="notice-body">
+      <h4><i class="fa-solid fa-circle-info"></i> Important — Please Read</h4>
+      <p>
+        Before submitting your withdrawal request, please ensure your Mobile Money or bank account details are correct. Withdrawals are typically processed within <strong>15–30 minutes</strong> after approval. Thank you for choosing <strong>KOWRI GHANA</strong>.
+      </p>
+    </div>
+  </div>
+
+  <div class="form-card" id="form-section">
+    <div class="form-card-title">
+      <i class="fa-solid fa-arrow-up-from-bracket"></i>
+      Withdrawal Request
+    </div>
+
+    <div class="field">
+      <label>Account Name</label>
+      <input type="text" id="accountName" placeholder="Full name as on your account"/>
+      <div class="field-error" id="accountName-err">Please enter the account holder's name.</div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Agent Service</label>
+        <div class="select-wrap">
+          <select id="agentService">
+            <option value="">Select service</option>
+            <option value="MOMO_AGENT">Mobile Money (MoMo)</option>
+            <option value="BANK_TRANSFER">Bank Transfer</option>
+          </select>
+        </div>
+        <div class="field-error" id="agentService-err">Please select a service.</div>
+      </div>
+      <div class="field">
+        <label>Network / Bank</label>
+        <div class="select-wrap">
+          <select id="networkProvider">
+            <option value="">Select network</option>
+            <option value="MTN">MTN</option>
+            <option value="VODAFONE">Vodafone</option>
+            <option value="AIRTEL">Airtel</option>
+            <option value="TIGO">Tigo</option>
+            <option value="GCB">GCB Bank</option>
+            <option value="ECOBANK">Ecobank</option>
+            <option value="STANBIC">Stanbic Bank</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+        <div class="field-error" id="networkProvider-err">Please select a network or bank.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Account Number</label>
+      <input type="tel" id="accountNumber" placeholder="e.g. 0240000000" inputmode="numeric"/>
+      <div class="field-error" id="accountNumber-err">Please enter a valid account number.</div>
+    </div>
+
+    <div class="min-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>Minimum withdrawal amount is <strong>GH₵ 2,000.00</strong>. Your request will be reviewed by an admin before funds are sent.</span>
+    </div>
+
+    <div class="field">
+      <label>Amount (GH₵)</label>
+      <input type="number" id="amount" placeholder="Min. GH₵ 2,000.00" min="2000" step="0.01"/>
+      <div class="field-hint">Enter the amount you wish to withdraw</div>
+      <div class="field-error" id="amount-err">Minimum withdrawal is GH₵ 2,000.00.</div>
+    </div>
+
+    <div class="field">
+      <label>Additional Note <span style="font-weight:400;color:var(--muted);font-size:12px;">(optional)</span></label>
+      <textarea id="note" placeholder="Any additional info for the admin (e.g. urgency, alternate contact)…" oninput="enforceNoteLimit(this)"></textarea>
+    </div>
+
+    <button class="btn-submit" id="wit-btn" onclick="doWithdraw()">
+      <i class="fa-solid fa-paper-plane"></i> Submit Request
+    </button>
+  </div>
+</div>
+
+<!-- Processing modal -->
+<div class="modal-overlay" id="processing-modal">
+  <div class="modal-box">
+    <div class="modal-icon-wrap">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+    </div>
+    <h2>Request Submitted!</h2>
+    <p class="sub">Your withdrawal request is currently under review by our system. This standard processing window takes approximately 15 to 30 minutes. Once approved, the funds will be credited directly to your Mobile Money or bank account. Thank you for choosing our services. <strong>KOWRI GHANA</strong></p>
+
+    <div class="ring-wrap">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle class="ring-track" cx="55" cy="55" r="48"/>
+        <circle class="ring-prog" id="ring-prog" cx="55" cy="55" r="48"/>
+      </svg>
+      <div class="ring-center">
+        <span class="mins" id="countdown-display">—</span>
+        <span class="unit">min left</span>
+      </div>
+    </div>
+
+    <div class="prog-bar-wrap">
+      <div class="prog-bar-fill" id="prog-bar" style="width:0%"></div>
+    </div>
+    <p class="prog-label" id="prog-label">Estimated wait: calculating…</p>
+
+    <div class="status-steps">
+      <div class="step-row">
+        <div class="step-dot done"><i class="fa-solid fa-check"></i></div>
+        <span>Withdrawal request submitted</span>
+      </div>
+      <div class="step-row">
+        <div class="step-dot active"><div class="pulse"></div></div>
+        <span>Admin review in progress</span>
+      </div>
+      <div class="step-row">
+        <div class="step-dot pending"><span></span></div>
+        <span>Funds disbursed to your account</span>
+      </div>
+    </div>
+
+    <button class="btn-modal-close" onclick="goHome()">
+      <i class="fa-solid fa-house"></i> Back to Dashboard
+    </button>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+const MIN_WITHDRAWAL = 2000;
+const NOTE_MAX = 80;
+let currentBalance = 0;
+let countdownInterval = null;
+let currentUser = null;
+
+window.enforceNoteLimit = function(el){
+  if(el.value.length > NOTE_MAX){
+    el.value = el.value.slice(0, NOTE_MAX);
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    const banner   = document.getElementById('bal-banner');
+    const display  = document.getElementById('bal-display');
+
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if(userDoc.exists()){
+        const userData = userDoc.data();
+        currentBalance = parseFloat(userData.balance || 0);
+        const fmt = currentBalance.toLocaleString('en-GH',{minimumFractionDigits:2,maximumFractionDigits:2});
+        display.textContent = 'GH₵ ' + fmt;
+
+        if(currentBalance <= 0){
+          banner.classList.add('zero');
+          showErr('Your balance is GH₵ 0.00. Please make a deposit before requesting a withdrawal.');
+          document.getElementById('wit-btn').disabled = true;
+        } else if(currentBalance < MIN_WITHDRAWAL){
+          banner.classList.add('low');
+          const needed = (MIN_WITHDRAWAL - currentBalance).toLocaleString('en-GH',{minimumFractionDigits:2});
+          showErr(`Your balance of GH₵ ${fmt} is below the GH₵ 2,000.00 minimum. You need GH₵ ${needed} more.`);
+          document.getElementById('wit-btn').disabled = true;
+        }
+      } else {
+        display.textContent = 'Unavailable';
+      }
+    } catch(e) {
+      console.error(e);
+      display.textContent = 'Unavailable';
+    }
+  } else {
+    location.href='signin.html';
+  }
+});
+
+function showErr(msg){
+  document.getElementById('err-msg').textContent = msg;
+  document.getElementById('err-box').classList.add('show');
+}
+function hideErr(){
+  document.getElementById('err-box').classList.remove('show');
+}
+
+function startCountdown(totalMinutes){
+  const circumference = 2 * Math.PI * 48;
+  const ring = document.getElementById('ring-prog');
+  ring.style.strokeDasharray  = circumference;
+  ring.style.strokeDashoffset = 0;
+
+  let totalSeconds = totalMinutes * 60;
+  const startSecs  = totalSeconds;
+
+  function tick(){
+    const minsLeft = Math.ceil(totalSeconds / 60);
+    const elapsed  = startSecs - totalSeconds;
+    const pct      = (elapsed / startSecs) * 100;
+
+    document.getElementById('countdown-display').textContent = minsLeft;
+    document.getElementById('prog-bar').style.width          = pct.toFixed(1) + '%';
+    document.getElementById('prog-label').textContent        =
+      `Estimated wait: ~${minsLeft} minute${minsLeft !== 1 ? 's' : ''} remaining`;
+    ring.style.strokeDashoffset = circumference * (1 - elapsed / startSecs);
+
+    if(totalSeconds <= 0){
+      clearInterval(countdownInterval);
+      document.getElementById('countdown-display').textContent = '0';
+      document.getElementById('prog-bar').style.width = '100%';
+      document.getElementById('prog-label').textContent = 'Review complete — funds being disbursed.';
+      const dots = document.querySelectorAll('.step-dot');
+      dots[1].className = 'step-dot done';
+      dots[1].innerHTML = '<i class="fa-solid fa-check"></i>';
+      dots[2].className = 'step-dot done';
+      dots[2].innerHTML = '<i class="fa-solid fa-check"></i>';
+    }
+    totalSeconds--;
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+function showModal(){
+  const wait = Math.floor(Math.random() * 16) + 15;
+  document.getElementById('processing-modal').classList.add('show');
+  startCountdown(wait);
+}
+
+window.goHome = function(){
+  clearInterval(countdownInterval);
+  location.href = 'dashboard.html';
+}
+
+window.doWithdraw = async function(){
+  hideErr();
+  const btn = document.getElementById('wit-btn');
+
+  const accountName     = document.getElementById('accountName').value.trim();
+  const agentService    = document.getElementById('agentService').value;
+  const networkProvider = document.getElementById('networkProvider').value;
+  const accountNumber   = document.getElementById('accountNumber').value.trim();
+  const amount          = parseFloat(document.getElementById('amount').value);
+  const note            = document.getElementById('note').value.trim();
+
+  let hasError = false;
+  const require = (id, errId) => {
+    const el = document.getElementById(id);
+    const ok = el.value && el.value.trim() !== '';
+    document.getElementById(errId).style.display = ok ? 'none' : 'block';
+    if(!ok) hasError = true;
+  };
+
+  require('accountName',     'accountName-err');
+  require('agentService',    'agentService-err');
+  require('networkProvider', 'networkProvider-err');
+  require('accountNumber',   'accountNumber-err');
+
+  if(!amount || amount < MIN_WITHDRAWAL){
+    document.getElementById('amount-err').style.display = 'block';
+    hasError = true;
+  } else {
+    document.getElementById('amount-err').style.display = 'none';
+  }
+
+  if(currentBalance > 0 && amount > currentBalance){
+    showErr(`Insufficient balance. Your available balance is GH₵ ${currentBalance.toLocaleString('en-GH',{minimumFractionDigits:2})}.`);
+    hasError = true;
+  }
+
+  if(hasError) return;
+  if(!currentUser){ showErr('You must be logged in.'); return; }
+
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner"></span> Submitting…';
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    let userName = "Unknown";
+    let userEmail = currentUser.email;
+    if(userDoc.exists()) {
+        userName = userDoc.data().fullName || "Unknown";
+    }
+
+    await addDoc(collection(db, "withdrawals"), {
+      userId: currentUser.uid,
+      userName: userName,
+      userEmail: userEmail,
+      accountName: accountName,
+      agentService: agentService,
+      networkProvider: networkProvider,
+      accountNumber: accountNumber,
+      amount: amount,
+      note: note,
+      status: 'PENDING',
+      createdAt: serverTimestamp()
+    });
+
+    showModal();
+
+  } catch(e) {
+    console.error(e);
+    showErr(e.message || 'Withdrawal request failed. Please try again.');
+    btn.disabled  = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Request';
+  }
+}
+</script>
+</body>
+</html>
